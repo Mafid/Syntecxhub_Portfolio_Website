@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced FAQ Accordion</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+
+      body {
+        background: #f8fafc;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .faq-wrapper {
+        max-width: 750px;
+        width: 100%;
+      }
+
+      .faq-title {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: #0f172a;
+      }
+
+      .faq {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+      }
+
+      .faq-item {
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .faq-item:last-child {
+        border-bottom: none;
+      }
+
+      .faq-button {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+      }
+
+      .faq-button:hover {
+        background: #f1f5f9;
+      }
+
+      .faq-icon {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s ease;
+      }
+
+      .faq-item.active .faq-icon {
+        transform: rotate(180deg);
+      }
+
+      .faq-content {
+        height: 0;
+        overflow: hidden;
+        transition: height 0.35s ease;
+      }
+
+      .faq-answer {
+        padding: 0 22px 18px 22px;
+        font-size: 15px;
+        color: #475569;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 600px) {
+        .faq-title {
+          font-size: 26px;
+        }
+
+        .faq-button {
+          font-size: 15px;
+          padding: 16px 18px;
+        }
+
+        .faq-answer {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="faq-wrapper">
+      <h2 class="faq-title">Frequently Asked Questions</h2>
+
+      <div class="faq">
+        <div class="faq-item">
+          <button class="faq-button" aria-expanded="false">
+            <span>What is an FAQ accordion?</span>
+
+            <svg
+              class="faq-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="faq-content">
+            <div class="faq-answer">
+              An FAQ accordion is a UI pattern where questions can be expanded
+              or collapsed to reveal answers, helping keep long pages clean and
+              easy to navigate.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-button" aria-expanded="false">
+            <span>Why use an accordion layout?</span>
+
+            <svg
+              class="faq-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="faq-content">
+            <div class="faq-answer">
+              Accordion layouts improve readability by hiding secondary
+              information until the user requests it. This reduces visual
+              clutter on long pages.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-button" aria-expanded="false">
+            <span>Is this component mobile friendly?</span>
+
+            <svg
+              class="faq-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="faq-content">
+            <div class="faq-answer">
+              Yes. The layout is responsive and adapts to small screens while
+              keeping touch interactions comfortable.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-button" aria-expanded="false">
+            <span>Can I integrate this into a real website?</span>
+
+            <svg
+              class="faq-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="faq-content">
+            <div class="faq-answer">
+              Absolutely. This component is framework-independent and works with
+              any project built using plain HTML, CSS, or JavaScript.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const items = document.querySelectorAll(".faq-item");
+
+      items.forEach((item) => {
+        const button = item.querySelector(".faq-button");
+        const content = item.querySelector(".faq-content");
+
+        button.addEventListener("click", () => {
+          const isOpen = item.classList.contains("active");
+
+          items.forEach((i) => {
+            i.classList.remove("active");
+            i.querySelector(".faq-button").setAttribute(
+              "aria-expanded",
+              "false",
+            );
+            i.querySelector(".faq-content").style.height = 0;
+          });
+
+          if (!isOpen) {
+            item.classList.add("active");
+            button.setAttribute("aria-expanded", "true");
+            content.style.height = content.scrollHeight + "px";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
