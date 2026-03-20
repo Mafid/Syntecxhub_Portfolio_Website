@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <div class="brand">Syntecx Quiz</div>
+      <div class="meta">Sharpen your fundamentals in minutes</div>
+    </header>
+
+    <section class="card quiz-container" aria-live="polite">
+      <div class="card-top">
+        <div class="progress">
+          <span id="progressText">Question 1 of 3</span>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+        <div class="score-pill">Score: <span id="liveScore">0</span></div>
+      </div>
+
+      <h2 id="question" class="question">Question text</h2>
+      <div id="answers" class="answers" role="list"></div>
+
+      <button id="nextBtn" class="btn-primary">Next</button>
+      <p class="hint">Tip: select an option to continue.</p>
+    </section>
+
+    <section id="result" class="card result hidden" aria-live="polite">
+      <div class="result-badge">Completed</div>
+      <h2 class="result-title">Your Score</h2>
+      <p class="result-score"><span id="score"></span></p>
+      <button class="btn-secondary" onclick="restartQuiz()">Restart</button>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
