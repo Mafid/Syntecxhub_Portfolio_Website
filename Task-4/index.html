@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanban Board</title>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap");
+
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #6b7280;
+  --primary: #1e40af;
+  --primary-soft: #e8edff;
+  --border: #e5e7eb;
+  --shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  --column: #f3f4f6;
+  --chip: #f1f5f9;
+}
+
+body.dark {
+  --bg: #0b1120;
+  --card: #111827;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --primary: #93c5fd;
+  --primary-soft: #0f172a;
+  --border: #1f2937;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  --column: #0f172a;
+  --chip: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans 3", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top left, #fef3c7 0%, var(--bg) 45%, #e2e8f0 100%);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 18px 40px;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title h1 {
+  margin: 0;
+  font-family: "Space Grotesk", "Source Sans 3", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.title p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.toggle {
+  border: none;
+  background: var(--chip);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.toggle:active {
+  transform: scale(0.98);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.column {
+  background: var(--column);
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.column h3 {
+  margin: 0;
+  font-family: "Space Grotesk", "Source Sans 3", sans-serif;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.column h3 span {
+  font-size: 12px;
+  background: var(--chip);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.task-list {
+  min-height: 220px;
+  display: grid;
+  gap: 10px;
+}
+
+.task {
+  background: var(--card);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: grab;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task.dragging {
+  opacity: 0.5;
+}
+
+.task-text {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  cursor: text;
+}
+
+.task-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.task-action {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.task-action.delete {
+  background: #ffe4e4;
+  color: #b42318;
+}
+
+.task-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.column button {
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.column button:hover {
+  background: #1b2f8a;
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+</style>
+
+</head>
+<body>
+
+<div class="page">
+  <div class="topbar">
+    <div class="title">
+      <h1>Kanban Board</h1>
+      <p>Drag tasks between stages to track progress.</p>
+    </div>
+    <button class="toggle" onclick="toggleTheme()">Toggle Dark Mode</button>
+  </div>
+
+  <div class="board">
+
+    <div class="column" data-status="todo">
+      <h3>To-Do <span class="count" data-count="todo">0</span></h3>
+      <button onclick="addTask('todo')">+ Add</button>
+      <div class="task-list"></div>
+    </div>
+
+    <div class="column" data-status="doing">
+      <h3>Doing <span class="count" data-count="doing">0</span></h3>
+      <button onclick="addTask('doing')">+ Add</button>
+      <div class="task-list"></div>
+    </div>
+
+    <div class="column" data-status="done">
+      <h3>Done <span class="count" data-count="done">0</span></h3>
+      <button onclick="addTask('done')">+ Add</button>
+      <div class="task-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let theme = localStorage.getItem("theme") || "light";
+
+if (theme === "dark") document.body.classList.add("dark");
+
+function save() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  localStorage.setItem("theme", theme);
+}
+
+function addTask(status) {
+  const text = prompt("Task?");
+  if (!text) return;
+
+  tasks.push({
+    id: Date.now(),
+    text,
+    status
+  });
+
+  save();
+  render();
+}
+
+function render() {
+  document.querySelectorAll(".task-list").forEach(l => l.innerHTML = "");
+
+  tasks.forEach(task => {
+    const el = document.createElement("div");
+    el.className = "task";
+    el.draggable = true;
+    el.dataset.id = task.id;
+    const text = document.createElement("span");
+    text.className = "task-text";
+    text.textContent = task.text;
+
+    const actions = document.createElement("div");
+    actions.className = "task-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "task-action";
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startInlineEdit(el, task);
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "task-action delete";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteTask(task.id);
+    });
+
+    actions.appendChild(editBtn);
+    actions.appendChild(deleteBtn);
+
+    // EDIT (single click on text or double click on card)
+    text.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startInlineEdit(el, task);
+    });
+
+    el.ondblclick = () => startInlineEdit(el, task);
+
+    // DRAG START
+    el.addEventListener("dragstart", () => {
+      el.classList.add("dragging");
+    });
+
+    el.addEventListener("dragend", () => {
+      el.classList.remove("dragging");
+      updateOrder();
+    });
+
+    el.appendChild(text);
+    el.appendChild(actions);
+
+    document
+      .querySelector(`[data-status="${task.status}"] .task-list`)
+      .appendChild(el);
+  });
+
+  updateCounts();
+}
+
+// DROP + ORDERING
+document.querySelectorAll(".task-list").forEach(list => {
+
+  list.addEventListener("dragover", e => {
+    e.preventDefault();
+    const dragging = document.querySelector(".dragging");
+    const after = getDragAfterElement(list, e.clientY);
+    if (after == null) {
+      list.appendChild(dragging);
+    } else {
+      list.insertBefore(dragging, after);
+    }
+  });
+
+  list.addEventListener("drop", () => {
+    const id = document.querySelector(".dragging").dataset.id;
+    const status = list.parentElement.dataset.status;
+
+    tasks = tasks.map(t =>
+      t.id == id ? { ...t, status } : t
+    );
+
+    save();
+  });
+
+});
+
+function getDragAfterElement(container, y) {
+  const els = [...container.querySelectorAll(".task:not(.dragging)")];
+
+  return els.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// UPDATE ORDER IN ARRAY
+function updateOrder() {
+  let newTasks = [];
+
+  document.querySelectorAll(".column").forEach(col => {
+    const status = col.dataset.status;
+    col.querySelectorAll(".task").forEach(el => {
+      const id = el.dataset.id;
+      const task = tasks.find(t => t.id == id);
+      newTasks.push({ ...task, status });
+    });
+  });
+
+  tasks = newTasks;
+  save();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  save();
+  render();
+}
+
+function updateCounts() {
+  const counts = {
+    todo: tasks.filter(t => t.status === "todo").length,
+    doing: tasks.filter(t => t.status === "doing").length,
+    done: tasks.filter(t => t.status === "done").length
+  };
+
+  Object.keys(counts).forEach(key => {
+    const el = document.querySelector(`[data-count="${key}"]`);
+    if (el) el.textContent = counts[key];
+  });
+}
+
+function startInlineEdit(el, task) {
+  el.draggable = false;
+  const input = document.createElement("input");
+  input.className = "task-input";
+  input.value = task.text;
+  el.innerHTML = "";
+  el.appendChild(input);
+  input.focus();
+
+  function finalize(saveEdit) {
+    el.draggable = true;
+    if (!saveEdit) {
+      render();
+      return;
+    }
+    const next = input.value.trim();
+    if (!next) {
+      render();
+      return;
+    }
+    task.text = next;
+    save();
+    render();
+  }
+
+  input.addEventListener("blur", () => finalize(false));
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") finalize(true);
+    if (e.key === "Escape") finalize(false);
+  });
+}
+
+// DARK MODE
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  theme = document.body.classList.contains("dark") ? "dark" : "light";
+  save();
+}
+
+render();
+</script>
+
+</body>
+</html>
